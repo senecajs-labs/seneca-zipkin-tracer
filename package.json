@@ -36,6 +36,6 @@
   },
   "pre-commit": [],
   "dependencies": {
-    "request": "^2.74.0"
+    "zipkin-simple": "0.0.1"
   }
 }

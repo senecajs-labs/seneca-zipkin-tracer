@@ -1,5 +1,9 @@
 
-var Tracer = require('./zipkin')
+var Tracer = require('zipkin-simple')
+Tracer.options({
+  host: "127.0.0.1",
+  port: 9411
+})
 
 function handler (msg, done) {
   var pin = msg.meta$.pattern
