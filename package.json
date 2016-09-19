@@ -10,8 +10,7 @@
     "url": "git+https://github.com/seneca-labs/seneca-zipkin-tracer.git"
   },
   "scripts": {
-    "test": "lab test/*.test.js -r console -L -t 78 -c -v",
-    "annotate": "docco mesh.js -o docs/annotated",
+    "test": "lab test/*.test.js -r console -L -t 80 -c -v",
     "lint": "lab *.js -dL",
     "coveralls": "lab -s -P test -r lcov | coveralls",
     "coverage": "lab -v -P test -L -t 80 -r html > docs/coverage.html"
