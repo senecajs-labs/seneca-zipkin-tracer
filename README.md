@@ -1,6 +1,6 @@
 ![Seneca][Logo]
 
-# seneca-web
+# seneca-zipkin-tracer
 [![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
 [![Coverage Status][coveralls-badge]][coveralls-url]
