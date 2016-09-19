@@ -54,6 +54,11 @@ var server = Seneca({tag: 'service-name'}).use('zipkin-tracer', {
 })
 ```
 
+## Caveats
+
+- `seneca-zipkin-tracer` currently doesn't support `seneca-mesh` and `seneca-balance-client`.
+- Not ready for high traffic production instances until requests sampling is implemented.
+
 ## Test
 To run tests locally,
 
