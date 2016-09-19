@@ -1,7 +1,7 @@
 
 var Tracer = require('zipkin-simple')
 Tracer.options({
-  host: "127.0.0.1",
+  host: '127.0.0.1',
   port: 9411
 })
 
@@ -92,6 +92,7 @@ function handle_as_server (context, pin, msg, done) {
 }
 
 function tracer_plugin (options) {
+  Tracer.options(options.zipkin)
   var seneca = this
   override_actions(seneca)
   wrap_add(seneca)
