@@ -205,7 +205,7 @@ describe('Seneca Zipkin Tracer', function () {
   })
 
   describe('Child trace', function () {
-    it('should send the client annotations only', function (done) {
+    it('should send annotations for both root and child span', function (done) {
       let requests = []
 
       fakeHttp.on('request', function (data) {
