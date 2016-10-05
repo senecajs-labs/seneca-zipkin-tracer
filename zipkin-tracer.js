@@ -1,5 +1,9 @@
 
-var Tracer = require('./zipkin')
+var Tracer = require('zipkin-simple')
+Tracer.options({
+  host: '127.0.0.1',
+  port: 9411
+})
 
 function handler (msg, done) {
   var pin = msg.meta$.pattern
@@ -49,13 +53,13 @@ function override_actions (seneca) {
 
 function handle_as_client (context, pin, msg, done) {
   var service = context.private$.optioner.get().tag
-  var trace_data = Tracer.get_child(context.fixedargs.tracer)
+  var trace_data = Tracer.get_child(context.fixedargs.__tracer__)
   Tracer.client_send(trace_data, {
     service: service,
     name: pin
   })
 
-  context.fixedargs.tracer = trace_data
+  context.fixedargs.__tracer__ = trace_data
 
   context.prior(msg, function (err, msg) {
     Tracer.client_recv(trace_data, {
@@ -69,13 +73,13 @@ function handle_as_client (context, pin, msg, done) {
 
 function handle_as_server (context, pin, msg, done) {
   var service = context.private$.optioner.get().tag
-  var trace_data = Tracer.get_data(msg.tracer)
+  var trace_data = Tracer.get_data(msg.__tracer__)
   Tracer.server_recv(trace_data, {
     service: service,
     name: pin
   })
 
-  msg.tracer = context.fixedargs.tracer = trace_data
+  msg.tracer = context.fixedargs.__tracer__ = trace_data
 
   context.prior(msg, function (err, msg) {
     Tracer.server_send(trace_data, {
@@ -88,6 +92,7 @@ function handle_as_server (context, pin, msg, done) {
 }
 
 function tracer_plugin (options) {
+  Tracer.options(options.zipkin)
   var seneca = this
   override_actions(seneca)
   wrap_add(seneca)
