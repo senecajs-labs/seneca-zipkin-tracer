@@ -1,6 +1,6 @@
 {
   "name": "seneca-zipkin-tracer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Seneca tracer sending data to zipkin",
   "main": "zipkin-tracer.js",
   "license": "MIT",
