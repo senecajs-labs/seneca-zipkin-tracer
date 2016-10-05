@@ -5,97 +5,98 @@ Tracer.options({
   port: 9411
 })
 
-function handler (msg, done) {
+function internal_action (msg) {
+  return msg.role === 'seneca' ||
+    msg.role === 'transport' ||
+    msg.role === 'options' ||
+    msg.role === 'mesh' ||
+    msg.init
+}
+
+function client_inward (ctx, msg) {
+  var service = ctx.seneca.private$.optioner.get().tag
   var pin = msg.meta$.pattern
-  if (msg.transport$) {
-    return handle_as_server(this, pin, msg, done)
-  }
 
-  handle_as_client(this, pin, msg, done)
-}
-
-function wrap_add (seneca) {
-  var root = seneca.root
-  var api_add = root.add
-  root.add = function () {
-    api_add.apply(this, arguments)
-
-    var args = seneca.util.parsepattern(this, arguments, 'action:f? actmeta:o?')
-    var pattern = args.pattern
-
-    if (!internal_action(pattern)) {
-      pattern.strict$ = pattern.strict$ || {}
-      pattern.strict$.add = true
-      api_add.call(seneca, pattern, handler)
-    }
-  }
-}
-
-function internal_action (pattern) {
-  // TODO support jsonic version here (i.e. "role:seneca")
-  return pattern.role === 'seneca' ||
-    pattern.role === 'transport' ||
-    pattern.role === 'options' ||
-    pattern.role === 'mesh' ||
-    pattern.init
-}
-
-function override_actions (seneca) {
-  var actions = seneca.private$.actrouter.list()
-  for (var i = 0; i < actions.length; i++) {
-    var action = actions[i]
-
-    if (!internal_action(action.match)) {
-      seneca.add(action.match, handler)
-    }
-  }
-}
-
-function handle_as_client (context, pin, msg, done) {
-  var service = context.private$.optioner.get().tag
-  var trace_data = Tracer.get_child(context.fixedargs.__tracer__)
+  var trace_data = Tracer.get_child(ctx.seneca.fixedargs.__tracer__)
   Tracer.client_send(trace_data, {
     service: service,
     name: pin
   })
 
-  context.fixedargs.__tracer__ = trace_data
-
-  context.prior(msg, function (err, msg) {
-    Tracer.client_recv(trace_data, {
-      service: service,
-      name: pin
-    })
-
-    done(err, msg)
-  })
+  ctx.__tracer__ = ctx.seneca.fixedargs.__tracer__ = trace_data
 }
 
-function handle_as_server (context, pin, msg, done) {
-  var service = context.private$.optioner.get().tag
+function server_inward (ctx, msg) {
+  var service = ctx.seneca.private$.optioner.get().tag
+  var pin = msg.meta$.pattern
   var trace_data = Tracer.get_data(msg.__tracer__)
+
   Tracer.server_recv(trace_data, {
     service: service,
     name: pin
   })
 
-  msg.tracer = context.fixedargs.__tracer__ = trace_data
+  ctx.__tracer__ = msg.__tracer__ = ctx.seneca.fixedargs.__tracer__ = trace_data
+}
 
-  context.prior(msg, function (err, msg) {
-    Tracer.server_send(trace_data, {
-      service: service,
-      name: pin
-    })
+function client_outward (ctx, msg) {
+  var service = ctx.seneca.private$.optioner.get().tag
+  var pin = msg.meta$.pattern
+  var trace_data = ctx.__tracer__
 
-    done(err, msg)
+  Tracer.client_recv(trace_data, {
+    service: service,
+    name: pin
   })
+}
+
+function server_outward (ctx, msg) {
+  var service = ctx.seneca.private$.optioner.get().tag
+  var pin = msg.meta$.pattern
+  var trace_data = ctx.__tracer__
+
+  Tracer.server_send(trace_data, {
+    service: service,
+    name: pin
+  })
+}
+
+function zipkin_inward (ctx, data) {
+  if (internal_action(data.msg)) {
+    return
+  }
+
+  var msg = data.msg
+  if (msg.transport$) {
+    return server_inward(ctx, msg)
+  }
+
+  client_inward(ctx, msg)
+}
+
+function zipkin_outward (ctx, data) {
+  if (internal_action(data.msg)) {
+    return
+  }
+
+  if (!ctx.__tracer__) {
+    return
+  }
+
+  var msg = data.msg
+  if (msg.transport$) {
+    return server_outward(ctx, msg)
+  }
+
+  client_outward(ctx, msg)
 }
 
 function tracer_plugin (options) {
   Tracer.options(options.zipkin)
   var seneca = this
-  override_actions(seneca)
-  wrap_add(seneca)
+
+  seneca.inward(zipkin_inward)
+  seneca.outward(zipkin_outward)
 }
 
 module.exports = tracer_plugin
