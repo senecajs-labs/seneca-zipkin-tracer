@@ -55,6 +55,8 @@ describe('Seneca Zipkin Tracer', function () {
     })
     .use(Plugin, {
       zipkin: {
+        sampling: 1,
+        transport: 'http-simple',
         port: FAKE_SERVER_PORT
       }
     })
@@ -77,6 +79,8 @@ describe('Seneca Zipkin Tracer', function () {
     })
     .use(Plugin, {
       zipkin: {
+        sampling: 1,
+        transport: 'http-simple',
         port: FAKE_SERVER_PORT
       }
     })

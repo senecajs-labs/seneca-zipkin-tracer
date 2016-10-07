@@ -1,6 +1,6 @@
 
-var Tracer = require('zipkin-simple')
-Tracer.options({
+var Zipkin = require('zipkin-simple')
+var Tracer = new Zipkin({
   host: '127.0.0.1',
   port: 9411
 })
@@ -18,7 +18,7 @@ function client_inward (ctx, msg) {
   var pin = msg.meta$.pattern
 
   var trace_data = Tracer.get_child(ctx.seneca.fixedargs.__tracer__)
-  Tracer.client_send(trace_data, {
+  trace_data = Tracer.send_client_send(trace_data, {
     service: service,
     name: pin
   })
@@ -29,9 +29,8 @@ function client_inward (ctx, msg) {
 function server_inward (ctx, msg) {
   var service = ctx.seneca.private$.optioner.get().tag
   var pin = msg.meta$.pattern
-  var trace_data = Tracer.get_data(msg.__tracer__)
 
-  Tracer.server_recv(trace_data, {
+  var trace_data = Tracer.send_server_recv(msg.__tracer__, {
     service: service,
     name: pin
   })
@@ -44,7 +43,7 @@ function client_outward (ctx, msg) {
   var pin = msg.meta$.pattern
   var trace_data = ctx.__tracer__
 
-  Tracer.client_recv(trace_data, {
+  Tracer.send_client_recv(trace_data, {
     service: service,
     name: pin
   })
@@ -55,7 +54,7 @@ function server_outward (ctx, msg) {
   var pin = msg.meta$.pattern
   var trace_data = ctx.__tracer__
 
-  Tracer.server_send(trace_data, {
+  Tracer.send_server_send(trace_data, {
     service: service,
     name: pin
   })
