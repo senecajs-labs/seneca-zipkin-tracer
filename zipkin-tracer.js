@@ -66,7 +66,8 @@ function zipkin_inward (ctx, data) {
   }
 
   var msg = data.msg
-  if (msg.transport$) {
+  ctx.server = msg.transport$ && msg.meta$.plugin_name !== 'client$'
+  if (ctx.server) {
     return server_inward(ctx, msg)
   }
 
@@ -83,7 +84,7 @@ function zipkin_outward (ctx, data) {
   }
 
   var msg = data.msg
-  if (msg.transport$) {
+  if (ctx.server) {
     return server_outward(ctx, msg)
   }
 
