@@ -92,7 +92,7 @@ function zipkin_outward (ctx, data) {
 }
 
 function tracer_plugin (options) {
-  Tracer.options(options.zipkin)
+  Tracer.options(options)
   var seneca = this
 
   seneca.inward(zipkin_inward)
