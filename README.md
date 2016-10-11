@@ -9,7 +9,7 @@
 
 - __Sponsor:__ [nearForm][Sponsor]
 - __Node:__ 4.x, 6.x
-- __Seneca:__ 1.x - 3.x
+- __Seneca:__ 3.3
 
 
 This plugin sends traces about actions execution to a [zipkin tracing system](http://zipkin.io) instance.
