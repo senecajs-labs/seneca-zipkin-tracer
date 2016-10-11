@@ -46,18 +46,28 @@ Location of zipkin can be configured through options:
 
 ```js
 var server = Seneca({tag: 'service-name'}).use('zipkin-tracer', {
-  zipkin: {
-    host: '127.0.0.1',
-    port: 9411,
-    url: '/api/v1/spans'
-  }
+  host: '127.0.0.1',
+  port: 9411,
+  url: '/api/v1/spans'
 })
 ```
 
+Assuming you have installed zipkin with the docker container linked above, you can reach the zipkin dashboard at http://localhost:9411/ where you should find all the traces collected for your service.
+
+### Options
+
+The plugin accepts the same options of [zipkin-simple](https://github.com/paolochiodi/zipkin-simple#traceroptionsopts):
+
+- *host*: location of zipkin server
+- *port*: port of the zipkin http transport
+- *url*: path where to send traces
+- *transport*: which transport to use (`http`, `http-simple` or custom function)
+- *sampling*: the sampling ratio, from 0 to 1 (0 means don't send data, 1 send all data)
+- for the http transport, *batchSize* and *batchTimeout* control the batching of spans and traces
+
 ## Caveats
 
-- `seneca-zipkin-tracer` currently doesn't support `seneca-mesh` and `seneca-balance-client`.
-- Not ready for high traffic production instances until requests sampling is implemented.
+Currently only supports zipkin http transport
 
 ## Test
 To run tests locally,
