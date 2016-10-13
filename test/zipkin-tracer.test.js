@@ -54,9 +54,9 @@ describe('Seneca Zipkin Tracer', function () {
       tag: 'client'
     })
     .use(Plugin, {
-      zipkin: {
-        port: FAKE_SERVER_PORT
-      }
+      sampling: 1,
+      transport: 'http-simple',
+      port: FAKE_SERVER_PORT
     })
     .add('with_child:1', function (args, done) {
       this.act('remote_standard:1', done)
@@ -76,9 +76,9 @@ describe('Seneca Zipkin Tracer', function () {
       tag: 'server'
     })
     .use(Plugin, {
-      zipkin: {
-        port: FAKE_SERVER_PORT
-      }
+      sampling: 1,
+      transport: 'http-simple',
+      port: FAKE_SERVER_PORT
     })
     .add('remote_standard:1', function (args, done) {
       done(null, {hello: 'world'})
