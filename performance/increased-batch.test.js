@@ -11,7 +11,7 @@ function action (msg, done) {
 const seneca = Seneca({log: 'silent'})
   .use(Plugin, {
     sampling: 1,
-    batchSize: 50
+    batchSize: 10000
   })
   .add('performance:test', action)
 
