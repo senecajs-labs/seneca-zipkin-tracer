@@ -17,6 +17,7 @@ function pick_value (obj) {
 }
 
 
+// docker run -d -p 9411:9411 openzipkin/zipkin
 describe('Seneca Zipkin Tracer', function () {
   let client
   let server
@@ -101,6 +102,7 @@ describe('Seneca Zipkin Tracer', function () {
     test(done)
   })
 
+  // docker run -d -p 5672:5672 rabbitmq
   it('works with amqp transport', function (done) {
     server
       .use('amqp-transport')
@@ -120,6 +122,7 @@ describe('Seneca Zipkin Tracer', function () {
     test(done)
   })
 
+  // docker run -d -p 6379:6379 redis
   it('works with redis queue transport', function (done) {
     server
       .use('redis-queue-transport')
@@ -137,6 +140,7 @@ describe('Seneca Zipkin Tracer', function () {
     test(done)
   })
 
+  // docker run -d -p 6379:6379 redis
   it('works with redis pubsub transport', function (done) {
     server
       .use('redis-transport')

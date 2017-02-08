@@ -1,6 +1,6 @@
 {
   "name": "seneca-zipkin-tracer",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Seneca tracer sending data to zipkin",
   "main": "zipkin-tracer.js",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "fastbench": "^1.0.1",
     "lab": "11.0.1",
     "pre-commit": "1.1.3",
-    "seneca": "https://github.com/senecajs/seneca.git",
+    "seneca": "3.3.x",
     "seneca-amqp-transport": "^2.0.0",
     "seneca-balance-client": "^0.6.0",
     "seneca-mesh": "^0.9.0",
@@ -45,6 +45,7 @@
     "test"
   ],
   "dependencies": {
+    "seneca": "^3.3.0",
     "zipkin-simple": "1.0.0"
   }
 }

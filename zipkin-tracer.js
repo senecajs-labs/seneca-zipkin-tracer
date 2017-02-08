@@ -13,21 +13,24 @@ function internal_action (msg) {
     msg.init
 }
 
+
 function client_inward (ctx, msg) {
-  var service = ctx.seneca.private$.optioner.get().tag
+  var service = ctx.seneca.options().tag
   var pin = msg.meta$.pattern
 
   var trace_data = Tracer.get_child(ctx.seneca.fixedargs.__tracer__)
+
   trace_data = Tracer.send_client_send(trace_data, {
     service: service,
     name: pin
   })
 
-  ctx.__tracer__ = ctx.seneca.fixedargs.__tracer__ = trace_data
+  ctx.__tracer__ = msg.__tracer__ = ctx.seneca.fixedargs.__tracer__ = trace_data
 }
 
+
 function server_inward (ctx, msg) {
-  var service = ctx.seneca.private$.optioner.get().tag
+  var service = ctx.seneca.options().tag
   var pin = msg.meta$.pattern
 
   var trace_data = Tracer.send_server_recv(msg.__tracer__, {
@@ -39,7 +42,7 @@ function server_inward (ctx, msg) {
 }
 
 function client_outward (ctx, msg) {
-  var service = ctx.seneca.private$.optioner.get().tag
+  var service = ctx.seneca.options().tag
   var pin = msg.meta$.pattern
   var trace_data = ctx.__tracer__
 
@@ -50,7 +53,7 @@ function client_outward (ctx, msg) {
 }
 
 function server_outward (ctx, msg) {
-  var service = ctx.seneca.private$.optioner.get().tag
+  var service = ctx.seneca.options().tag
   var pin = msg.meta$.pattern
   var trace_data = ctx.__tracer__
 
