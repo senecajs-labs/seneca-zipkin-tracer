@@ -1,4 +1,10 @@
 
+// FIX: this uses an injected msg property __tracer__ to encode the
+// zipkin tracking ids. This is incorrect, the message meta data should be used
+// instead. However, it needs to be verified that Seeneca will maintain the meta
+// context properly (which it should, but this needs to be tested).
+
+
 var Zipkin = require('zipkin-simple')
 var Tracer = new Zipkin({
   host: '127.0.0.1',
@@ -13,10 +19,18 @@ function internal_action (msg) {
     msg.init
 }
 
+function get_pattern(msg, meta) {
+  return meta ? meta.pattern : (msg.meta$ ? msg.meta$.pattern : null)
+}
 
-function client_inward (ctx, msg) {
+function get_plugin(msg, meta) {
+  return meta ? meta.plugin_name : (msg.meta$ ? msg.meta$.plugin_name : null)
+}
+
+
+function client_inward (ctx, msg, meta) {
   var service = ctx.seneca.options().tag
-  var pin = msg.meta$.pattern
+  var pin = get_pattern(msg, meta)
 
   var trace_data = Tracer.get_child(ctx.seneca.fixedargs.__tracer__)
 
@@ -29,9 +43,9 @@ function client_inward (ctx, msg) {
 }
 
 
-function server_inward (ctx, msg) {
+function server_inward (ctx, msg, meta) {
   var service = ctx.seneca.options().tag
-  var pin = msg.meta$.pattern
+  var pin = get_pattern(msg, meta)
 
   var trace_data = Tracer.send_server_recv(msg.__tracer__, {
     service: service,
@@ -41,9 +55,9 @@ function server_inward (ctx, msg) {
   ctx.__tracer__ = msg.__tracer__ = ctx.seneca.fixedargs.__tracer__ = trace_data
 }
 
-function client_outward (ctx, msg) {
+function client_outward (ctx, msg, meta) {
   var service = ctx.seneca.options().tag
-  var pin = msg.meta$.pattern
+  var pin = get_pattern(msg, meta)
   var trace_data = ctx.__tracer__
 
   Tracer.send_client_recv(trace_data, {
@@ -52,9 +66,9 @@ function client_outward (ctx, msg) {
   })
 }
 
-function server_outward (ctx, msg) {
+function server_outward (ctx, msg, meta) {
   var service = ctx.seneca.options().tag
-  var pin = msg.meta$.pattern
+  var pin = get_pattern(msg, meta)
   var trace_data = ctx.__tracer__
 
   Tracer.send_server_send(trace_data, {
@@ -69,12 +83,14 @@ function zipkin_inward (ctx, data) {
   }
 
   var msg = data.msg
-  ctx.server = msg.transport$ && msg.meta$.plugin_name !== 'client$'
+  var meta = data.meta
+  
+  ctx.server = msg.transport$ && get_plugin(msg, meta) !== 'client$'
   if (ctx.server) {
-    return server_inward(ctx, msg)
+    return server_inward(ctx, msg, meta)
   }
 
-  client_inward(ctx, msg)
+  client_inward(ctx, msg, meta)
 }
 
 function zipkin_outward (ctx, data) {
@@ -87,11 +103,13 @@ function zipkin_outward (ctx, data) {
   }
 
   var msg = data.msg
+  var meta = data.meta
+  
   if (ctx.server) {
-    return server_outward(ctx, msg)
+    return server_outward(ctx, msg, meta)
   }
 
-  client_outward(ctx, msg)
+  client_outward(ctx, msg, meta)
 }
 
 function tracer_plugin (options) {

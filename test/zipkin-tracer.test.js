@@ -50,24 +50,24 @@ describe('Seneca Zipkin Tracer', function () {
 
   lab.before(function setup_client (done) {
     client = Seneca({
-      log: 'silent',
       tag: 'client'
     })
-    .use(Plugin, {
-      sampling: 1,
-      transport: 'http-simple',
-      port: FAKE_SERVER_PORT
-    })
-    .add('with_child:1', function (args, done) {
-      this.act('remote_standard:1', done)
-    })
-    .add('local:1', function (args, done) {
-      done(null, {hello: 'local'})
-    })
-    .client({
-      pin: 'remote_standard:1'
-    })
-    .ready(done)
+      .test('print')
+      .use(Plugin, {
+        sampling: 1,
+        transport: 'http-simple',
+        port: FAKE_SERVER_PORT
+      })
+      .add('with_child:1', function (args, done) {
+        this.act('remote_standard:1', done)
+      })
+      .add('local:1', function (args, done) {
+        done(null, {hello: 'local'})
+      })
+      .client({
+        pin: 'remote_standard:1'
+      })
+      .ready(done)
   })
 
   lab.before(function setup_server (done) {
@@ -134,7 +134,11 @@ describe('Seneca Zipkin Tracer', function () {
           expect(requests.map(pick_trace_id)).to.only.contain(trace_id)
           expect(requests.map(pick_span_id)).to.only.contain(span_id)
           expect(requests.map(pick_parent_id)).to.only.contain(parent_id)
-          expect(requests.map(pick_annotations)).to.include([{
+
+          expect(requests.map(pick_annotations).map(function(item) {
+            return {value: item.value,
+                    endpoint: {serviceName: item.endpoint.serviceName}}
+          })).to.contain([{
             value: 'cs',
             endpoint: {serviceName: 'client'}
           }, {
@@ -147,6 +151,7 @@ describe('Seneca Zipkin Tracer', function () {
             value: 'ss',
             endpoint: {serviceName: 'server'}
           }])
+
         }
         catch (ex) {
           return done(ex)
@@ -185,7 +190,11 @@ describe('Seneca Zipkin Tracer', function () {
           expect(requests.map(pick_parent_id)).to.only.contain(parent_id)
 
           expect(annotations).to.have.length(2)
-          expect(annotations).to.include([{
+
+          expect(annotations.map(function(item) {
+            return {value: item.value,
+                    endpoint: {serviceName: item.endpoint.serviceName}}
+          })).to.include([{
             value: 'cs',
             endpoint: {serviceName: 'client'}
           }, {
@@ -236,7 +245,14 @@ describe('Seneca Zipkin Tracer', function () {
           expect(roots.map(pick_parent_id)).to.only.contain(root_parent_id)
 
           expect(root_annotations).to.have.length(2)
-          expect(root_annotations).to.include([{
+          //expect(root_annotations).to.include([{
+
+
+          expect(root_annotations.map(function(item) {
+            return {value: item.value,
+                    endpoint: {serviceName: item.endpoint.serviceName}}
+          })).to.include([{
+
             value: 'cs',
             endpoint: {serviceName: 'client'}
           }, {
@@ -254,7 +270,14 @@ describe('Seneca Zipkin Tracer', function () {
           expect(children.map(pick_parent_id)).to.only.contain(root_span_id)
 
           expect(child_annotations).to.have.length(4)
-          expect(child_annotations).to.include([{
+          //expect(child_annotations).to.include([{
+
+
+          expect(child_annotations.map(function(item) {
+            return {value: item.value,
+                    endpoint: {serviceName: item.endpoint.serviceName}}
+          })).to.include([{
+
             value: 'cs',
             endpoint: {serviceName: 'client'}
           }, {
