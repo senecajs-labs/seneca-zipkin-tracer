@@ -7,7 +7,7 @@
   "author": "Paolo Chiodi (https://github.com/paolochiodi)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seneca-labs/seneca-zipkin-tracer.git"
+    "url": "git+https://github.com/senecajs-labs/seneca-zipkin-tracer.git"
   },
   "scripts": {
     "test": "lab test/*.test.js -r console -t 90 -c -v",
