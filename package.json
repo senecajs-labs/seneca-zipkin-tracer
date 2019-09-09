@@ -1,6 +1,6 @@
 {
   "name": "seneca-zipkin-tracer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Seneca tracer sending data to zipkin",
   "main": "zipkin-tracer.js",
   "license": "MIT",
@@ -33,10 +33,10 @@
     "eslint-plugin-standard": "2.0.0",
     "fastbench": "^1.0.1",
     "lab": "14.0.x",
-    "seneca": "plugin"
+    "seneca": "^3.6.0"
   },
   "dependencies": {
-    "seneca": "plugin",
+    "seneca": "^3.6.0",
     "zipkin-simple": "1.0.0"
   }
 }
