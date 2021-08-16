@@ -7,6 +7,9 @@
 [![Dependency Status][david-badge]][david-url]
 [![Gitter chat][gitter-badge]][gitter-url]
 
+| ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
+|---|---|
+
 - __Sponsor:__ [nearForm][Sponsor]
 - __Node:__ 4.x, 6.x
 - __Seneca:__ 3.3
